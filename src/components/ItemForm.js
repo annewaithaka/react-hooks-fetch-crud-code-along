@@ -1,11 +1,42 @@
 import React, { useState } from "react";
 
-function ItemForm() {
+function ItemForm({ onAddItem }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Produce");
 
+  function handleSubmit(e) {
+    e.preventDefault();
+    const itemData = {
+      name: name,
+      category: category,
+      isInCart: false,
+    };
+
+    fetch("http://localhost:4000/items", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(itemData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((newItem) => {
+        onAddItem(newItem);
+        setName(""); // Clear the input fields
+        setCategory("Produce"); // Reset category to default
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
   return (
-    <form className="NewItem">
+    <form className="NewItem" onSubmit={handleSubmit}>
       <label>
         Name:
         <input
@@ -34,4 +65,4 @@ function ItemForm() {
   );
 }
 
-export default ItemForm;
+export default ItemForm;
